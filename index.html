@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your App - Simple & Clean</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="title">Rumahs</h1>
+            <p class="subtitle">Want to see the world with cool people you don't know yet?</p>
+        </header>
+
+        <!-- Hero Section -->
+        <main class="hero">
+            <div class="hero-image">
+                <img src="GrupoTeaser_1.jpg" alt="Four people watching sunset on beach driftwood" class="hero-photo">
+                <div class="text-overlay">
+                    <p>Meet nomads who want to share beautiful homes and plan your next remote adventure <em>together</em>.</p>
+                    <button class="cta-button" onclick="showForm()">join our waitlist</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Waitlist Form (Hidden by default) -->
+        <div id="waitlistForm" class="waitlist-form" style="display: none;">
+            <div class="form-container">
+                <h2>Join the Waitlist</h2>
+                                    <form id="signupForm">
+                        <div class="form-group">
+                            <input type="email" id="email" name="email" required placeholder="your email" autocomplete="off">
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="url" id="facebook" name="facebook" required placeholder="facebook profile link" autocomplete="off">
+                        </div>
+                        
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="willingToPay" name="willingToPay">
+                                <span class="checkmark"></span>
+                                I would pay a small fee for this service
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">join waitlist</button>
+                    </form>
+                
+                <button class="back-btn" onclick="hideForm()">back</button>
+            </div>
+        </div>
+
+        <!-- Success Message (Hidden by default) -->
+        <div id="successMessage" class="success-message" style="display: none;">
+            <h2>Welcome!</h2>
+            <p>You're on the list. We'll be in touch soon.</p>
+            <button class="back-btn" onclick="hideForm()">back</button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <nav class="footer-nav">
+                <a href="about.html">About Rumahs</a>
+            </nav>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
