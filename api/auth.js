@@ -17,7 +17,7 @@ function hashPassword(password, salt) {
 const ADMIN_CREDENTIALS = {
     username: process.env.ADMIN_USERNAME || 'admin',
     // Default password: 'admin123' - CHANGE THIS!
-    passwordHash: process.env.ADMIN_PASSWORD_HASH || 'c5e478d59288c841aa530db6fcdedf4d0d84bb4e342e4c4b5d7f6a5b5b1b6b8c8f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4',
+    passwordHash: process.env.ADMIN_PASSWORD_HASH || '3b134b2c3fb13e86d0ad85ef521fac558477a9f33c39609681756fab8e9a896370c317971d1ef3f7ad30a06b2dcf611922cba51d27b7a23eddc0069fcc44da0f',
     salt: process.env.ADMIN_PASSWORD_SALT || 'rumahs-admin-salt-2025'
 };
 
