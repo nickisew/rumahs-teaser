@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/waitlist/stats",
+      "destination": "/api/stats"
+    },
+    {
+      "source": "/api/waitlist/export", 
+      "destination": "/api/export"
+    }
+  ]
+}
