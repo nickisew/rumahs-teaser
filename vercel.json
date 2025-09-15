@@ -1,22 +1,17 @@
 {
-  "version": 2,
   "functions": {
     "api/**/*.js": {
       "runtime": "nodejs18.x"
     }
   },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/waitlist/stats",
-      "dest": "/api/stats.js"
+      "source": "/api/waitlist/stats",
+      "destination": "/api/stats"
     },
     {
-      "src": "/api/waitlist/export",
-      "dest": "/api/export.js"
-    },
-    {
-      "src": "/api/waitlist",
-      "dest": "/api/waitlist.js"
+      "source": "/api/waitlist/export", 
+      "destination": "/api/export"
     }
   ],
   "headers": [
