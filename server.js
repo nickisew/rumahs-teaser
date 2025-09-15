@@ -1,5 +1,5 @@
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
+const { Pool } = require('pg');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -27,24 +27,42 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('.'));
 
 // Database setup
-const db = new sqlite3.Database('./waitlist.db', (err) => {
+const pool = new Pool({
+  connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
+
+// Test database connection
+pool.connect((err, client, release) => {
     if (err) {
-        console.error('Error opening database:', err.message);
+        console.error('Error connecting to database:', err.message);
     } else {
-        console.log('Connected to SQLite database');
+        console.log('Connected to PostgreSQL database');
+        release();
     }
 });
 
 // Create waitlist table if it doesn't exist
-db.run(`CREATE TABLE IF NOT EXISTS waitlist (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT UNIQUE NOT NULL,
-    facebook TEXT NOT NULL,
-    willing_to_pay BOOLEAN DEFAULT 0,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    ip_address TEXT,
-    user_agent TEXT
-)`);
+async function initializeDatabase() {
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS waitlist (
+                id SERIAL PRIMARY KEY,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                facebook TEXT NOT NULL,
+                willing_to_pay BOOLEAN DEFAULT false,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                ip_address INET,
+                user_agent TEXT
+            )
+        `);
+        console.log('Database table initialized');
+    } catch (error) {
+        console.error('Error initializing database:', error);
+    }
+}
+
+initializeDatabase();
 
 // API Routes
 
@@ -78,11 +96,18 @@ app.post('/api/waitlist', limiter, (req, res) => {
 
     // Insert into database
     const sql = `INSERT INTO waitlist (email, facebook, willing_to_pay, ip_address, user_agent) 
-                  VALUES (?, ?, ?, ?, ?)`;
+                  VALUES ($1, $2, $3, $4, $5) RETURNING id`;
     
-    db.run(sql, [email, facebook, willingToPay ? 1 : 0, ipAddress, userAgent], function(err) {
-        if (err) {
-            if (err.message.includes('UNIQUE constraint failed')) {
+    pool.query(sql, [email, facebook, willingToPay || false, ipAddress, userAgent])
+        .then(result => {
+            res.json({ 
+                success: true, 
+                message: 'Successfully joined the waitlist!',
+                id: result.rows[0].id
+            });
+        })
+        .catch(err => {
+            if (err.code === '23505') { // Unique constraint violation
                 return res.status(409).json({ 
                     success: false, 
                     message: 'This email is already on the waitlist!' 
@@ -93,84 +118,83 @@ app.post('/api/waitlist', limiter, (req, res) => {
                 success: false, 
                 message: 'Server error, please try again' 
             });
-        }
-
-        res.json({ 
-            success: true, 
-            message: 'Successfully joined the waitlist!',
-            id: this.lastID
         });
-    });
 });
 
 // Get all waitlist entries (for admin use)
-app.get('/api/waitlist', (req, res) => {
+app.get('/api/waitlist', async (req, res) => {
     const sql = `SELECT id, email, facebook, willing_to_pay, timestamp, ip_address, user_agent 
                   FROM waitlist 
                   ORDER BY timestamp DESC`;
     
-    db.all(sql, [], (err, rows) => {
-        if (err) {
-            console.error('Database error:', err);
-            return res.status(500).json({ 
-                success: false, 
-                message: 'Server error' 
-            });
-        }
-        
+    try {
+        const result = await pool.query(sql);
         res.json({ 
             success: true, 
-            data: rows,
-            total: rows.length
+            data: result.rows,
+            total: result.rows.length
         });
-    });
+    } catch (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Server error' 
+        });
+    }
 });
 
 // Get waitlist statistics
-app.get('/api/waitlist/stats', (req, res) => {
+app.get('/api/waitlist/stats', async (req, res) => {
     const sql = `SELECT 
-                    COUNT(*) as total,
-                    COUNT(DISTINCT ip_address) as unique_ips,
-                    DATE(timestamp) as signup_date
+                    COUNT(*)::int as total,
+                    COUNT(DISTINCT ip_address)::int as unique_ips,
+                    DATE(timestamp) as signup_date,
+                    COUNT(*)::int as daily_signups
                   FROM waitlist 
                   GROUP BY DATE(timestamp)
                   ORDER BY signup_date DESC
                   LIMIT 30`;
     
-    db.all(sql, [], (err, rows) => {
-        if (err) {
-            console.error('Database error:', err);
-            return res.status(500).json({ 
-                success: false, 
-                message: 'Server error' 
-            });
-        }
+    try {
+        const result = await pool.query(sql);
         
+        // Also get overall stats
+        const overallStats = await pool.query(`
+            SELECT 
+                COUNT(*)::int as total_signups,
+                COUNT(DISTINCT ip_address)::int as unique_visitors,
+                COUNT(CASE WHEN willing_to_pay = true THEN 1 END)::int as willing_to_pay_count
+            FROM waitlist
+        `);
+
         res.json({ 
             success: true, 
-            data: rows
+            data: {
+                daily_stats: result.rows,
+                overall: overallStats.rows[0]
+            }
         });
-    });
+    } catch (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Server error' 
+        });
+    }
 });
 
 // Export waitlist as CSV
-app.get('/api/waitlist/export', (req, res) => {
+app.get('/api/waitlist/export', async (req, res) => {
     const sql = `SELECT email, facebook, willing_to_pay, timestamp, ip_address 
                   FROM waitlist 
                   ORDER BY timestamp DESC`;
     
-    db.all(sql, [], (err, rows) => {
-        if (err) {
-            console.error('Database error:', err);
-            return res.status(500).json({ 
-                success: false, 
-                message: 'Server error' 
-            });
-        }
+    try {
+        const result = await pool.query(sql);
         
         // Convert to CSV
         const csvHeader = 'Email,Facebook Profile,Willing to Pay,Timestamp,IP Address\n';
-        const csvRows = rows.map(row => 
+        const csvRows = result.rows.map(row => 
             `"${row.email}","${row.facebook}","${row.willing_to_pay ? 'Yes' : 'No'}","${row.timestamp}","${row.ip_address}"`
         ).join('\n');
         const csv = csvHeader + csvRows;
@@ -178,7 +202,13 @@ app.get('/api/waitlist/export', (req, res) => {
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', 'attachment; filename="waitlist-export.csv"');
         res.send(csv);
-    });
+    } catch (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Server error' 
+        });
+    }
 });
 
 // Helper functions
@@ -205,13 +235,13 @@ app.listen(PORT, () => {
 });
 
 // Graceful shutdown
-process.on('SIGINT', () => {
-    db.close((err) => {
-        if (err) {
-            console.error('Error closing database:', err.message);
-        } else {
-            console.log('Database connection closed');
-        }
+process.on('SIGINT', async () => {
+    try {
+        await pool.end();
+        console.log('Database connection pool closed');
         process.exit(0);
-    });
+    } catch (err) {
+        console.error('Error closing database pool:', err.message);
+        process.exit(1);
+    }
 });

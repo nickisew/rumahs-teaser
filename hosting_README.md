@@ -81,124 +81,152 @@ npm run dev
    - You should see your Rumahs landing page
    - If you see a GoDaddy parking page, DNS isn't ready yet
 
-### Option 2: Vercel (Recommended)
+### Option 2: Vercel + Neon (Recommended - Modern Serverless)
 
-**Why Vercel is Recommended for Rumahs:**
+**🎯 Your Rumahs project now uses modern serverless architecture!**
 
-✅ **Perfect for Node.js Apps**: Vercel is built specifically for modern web applications like yours
-✅ **Automatic SSL**: Free SSL certificates that auto-renew (no manual setup needed)
-   - SSL = Secure Sockets Layer - it's the "s" in "https://"
-   - Makes your site secure and trusted by browsers
-   - Required for forms, payments, and professional websites
-   - Without SSL: browsers show "Not Secure" warnings
-   - With SSL: browsers show a lock icon and "Secure"
-✅ **Global CDN**: Your site loads fast worldwide (important for digital nomads!)
-✅ **Easy Domain Connection**: Simple DNS setup with clear instructions
-✅ **Automatic Deployments**: Push code to GitHub → site updates automatically
-   - Connect your code to GitHub (free code storage)
-   - Every time you push changes to GitHub, Vercel automatically updates your live site
-   - No need to manually upload files or restart servers
-   - Perfect for digital nomads: update your site from anywhere in the world
-   - Example workflow: Edit code → Push to GitHub → Site updates in 2-3 minutes
-✅ **Free Tier**: Generous free plan (perfect for getting started)
-✅ **Built-in Analytics**: See visitor stats without extra setup
-✅ **Environment Variables**: Easy to manage API keys and settings
-✅ **No Server Management**: Focus on your app, not server maintenance
-✅ **Instant Rollbacks**: If something breaks, revert to previous version instantly
+**Why Vercel + Neon is Perfect for Rumahs:**
+
+✅ **Serverless Functions**: Your backend automatically scales from 0 to millions of users
+✅ **Neon PostgreSQL**: Cloud database with automatic backups and branching
+✅ **Global Performance**: Fast loading worldwide (perfect for digital nomads!)
+✅ **Automatic SSL**: Free SSL certificates that auto-renew
+✅ **Zero Server Management**: Focus on your app, not infrastructure
+✅ **GitHub Integration**: Push code → Automatic deployment
+✅ **Built-in Analytics**: Visitor stats and performance monitoring
+✅ **Cost Effective**: Pay only for what you use (generous free tiers)
 
 **Perfect for Digital Nomads:**
 - Deploy from anywhere in the world
-- No need to manage servers while traveling
-- Global performance means fast loading everywhere
-- Easy to update your site from any location
+- No servers to maintain while traveling
+- Database automatically handles traffic spikes
+- Easy updates from any location
 
-1. **Install Vercel CLI**:
+### **🚀 Step-by-Step Deployment:**
+
+#### **Step 1: Prepare Your Project**
+Your project has been converted to serverless! You now have:
+- `api/waitlist.js` - Handles form submissions
+- `api/stats.js` - Provides dashboard statistics  
+- `api/export.js` - CSV export functionality
+- `vercel.json` - Deployment configuration
+
+#### **Step 2: Install Dependencies**
 ```bash
+npm install
+```
+
+#### **Step 3: Deploy to Vercel**
+
+**Option A: GitHub Integration (Recommended)**
+1. Push your code to GitHub (see GitHub_README.md)
+2. Go to [vercel.com/dashboard](https://vercel.com/dashboard)
+3. Click "New Project" → Import from GitHub
+4. Select your repository
+5. **Framework Preset**: Select "Other" (not Express)
+6. **Root Directory**: Keep as "./"
+7. Click "Deploy"
+
+**Option B: Vercel CLI**
+```bash
+# Install Vercel CLI
 npm install -g vercel
+
+# Deploy
+vercel --prod
 ```
 
-2. **Deploy**:
-```bash
-vercel
-# Follow prompts to connect your GoDaddy domain
-```
+#### **Step 4: Set Up Neon Database**
+1. In your Vercel dashboard → Go to your project
+2. Click "Storage" tab → "Browse Marketplace"
+3. Find "Neon" → Click "Add Integration"
+4. **Vercel automatically:**
+   - Creates your PostgreSQL database
+   - Adds environment variables (`POSTGRES_URL`)
+   - Connects everything together
 
-3. **Connect Domain**:
-   - In Vercel dashboard, go to your project → Settings → Domains
-   - Click "Add Domain" and enter yourdomain.com
-   - Vercel will show you specific DNS records to add in GoDaddy
-   - **Important**: The exact values will be different for your domain
-   - Vercel will give you something like:
-     - **CNAME Record**: 
-       - Name: www
-       - Value: cname.vercel-dns.com (this is the actual value)
-     - **A Record**:
-       - Name: @ (this means your main domain)
-       - Value: 76.76.19.61 (this is Vercel's actual IP)
-   - **Note**: "www" and "@" are the standard names, but the values are what Vercel provides
+#### **Step 5: Verify Everything Works**
+1. Visit your Vercel URL (something like `rumahs-abc123.vercel.app`)
+2. Test your waitlist form
+3. Check admin dashboard: `your-url/admin.html`
+4. Verify CSV export works
+
+#### **Step 6: Connect Your Domain**
+1. In Vercel dashboard → Project → Settings → Domains
+2. Click "Add Domain" → Enter `yourdomain.com`
+3. Vercel will show DNS records to add in GoDaddy:
+   
+   **Typical Records (your values will be different):**
+   - **A Record**: Name: `@`, Value: `76.76.19.61`
+   - **CNAME Record**: Name: `www`, Value: `cname.vercel-dns.com`
+
+4. **Add to GoDaddy:**
    - Go to GoDaddy → My Products → Domains → Manage → DNS
-   - Add these exact records (delete any existing A records first)
+   - Delete existing A records (if pointing to parking page)
+   - Add the records Vercel provided
    - Wait 24-48 hours for DNS propagation
 
 ## 🔧 Production Setup
 
 ### Environment Variables
-Create `.env` file:
 
-**For Local Development (in Cursor):**
-1. **In Cursor terminal** or **file explorer**:
-   - Create a new file called `.env` (with the dot at the beginning)
-   - Add these lines:
+**✅ Automatic Setup with Neon Integration:**
+When you add the Neon integration in Vercel, these are automatically configured:
+- `POSTGRES_URL` - Your database connection string
+- `DATABASE_URL` - Alternative connection string name
+
+**📝 Manual Environment Variables (if needed):**
+
+**For Local Development:**
+1. Copy `env.example` to `.env`:
+```bash
+cp env.example .env
 ```
-NODE_ENV=production
+2. Get your database URL from Vercel → Project → Settings → Environment Variables
+3. Update `.env`:
+```
+POSTGRES_URL=your_neon_connection_string_from_vercel
+NODE_ENV=development
 PORT=3000
 DOMAIN=yourdomain.com
 ```
-**For Vercel Deployment:**
-1. **In Vercel dashboard**:
-   - Go to your project → Settings → Environment Variables
-   - Add each variable:
-     - Name: `NODE_ENV`, Value: `production`
-     - Name: `PORT`, Value: `3000`
-     - Name: `DOMAIN`, Value: `yourdomain.com`
 
-**For GoDaddy Hosting:**
-1. **In cPanel**:
-   - Look for "Environment Variables" or "PHP Variables"
-   - Add the same variables as above
+**For Vercel Deployment:**
+Environment variables are automatically set when you use the Neon integration. If you need to add custom ones:
+1. Vercel Dashboard → Project → Settings → Environment Variables
+2. Add variables like:
+   - `NODE_ENV`: `production`
+   - `DOMAIN`: `yourdomain.com`
 
 ### Database
 
-**Current Setup (SQLite):**
-- **What it is**: A simple file-based database (like an Excel file)
-- **Location**: `waitlist.db` file in your project folder
-- **Pros**: Easy to set up, no server needed, perfect for testing
-- **Cons**: Not suitable for production, can't handle many users
-- **Best for**: Development and small-scale testing
+**✅ Current Setup (Neon PostgreSQL):**
+Your project now uses **Neon**, a serverless PostgreSQL platform:
 
-**Production Database Options:**
+- **What it is**: Cloud PostgreSQL database that scales automatically
+- **Location**: Hosted on Neon's cloud infrastructure
+- **Pros**: 
+  - Serverless (scales to zero when not used)
+  - Automatic backups and point-in-time recovery
+  - Database branching (like Git for databases)
+  - Built-in connection pooling
+  - Global availability
+- **Cost**: Generous free tier (perfect for getting started)
+- **Best for**: Production applications with real users
 
-**Option 1: Vercel Postgres (Recommended for Vercel)**
-- **Cost**: Free tier available, then $20/month
-- **Setup**: Built into Vercel, easy to connect
-- **Pros**: Automatic backups, scaling, secure
-- **How to set up**:
-  1. In Vercel dashboard → Storage → Create Database
-  2. Choose "Postgres"
-  3. Get connection string
-  4. Update your `server.js` to use Postgres instead of SQLite
+**🎯 Why Neon is Perfect for Rumahs:**
+- **Auto-scaling**: Handles traffic spikes automatically
+- **Global Performance**: Fast queries worldwide (great for nomads)
+- **Reliability**: 99.95% uptime with automatic failover
+- **Developer Friendly**: Easy branching for testing features
+- **Cost Effective**: Pay only for storage and compute you use
 
-**Option 2: PlanetScale (MySQL)**
-- **Cost**: Free tier available
-- **Setup**: Create account, get connection string
-- **Pros**: Serverless MySQL, easy scaling
-- **Good for**: If you prefer MySQL over Postgres
-
-**Option 3: Supabase (PostgreSQL)**
-- **Cost**: Free tier available
-- **Setup**: Create project, get connection string
-- **Pros**: Full database with admin interface
-- **Good for**: If you want a database dashboard
+**🔧 Database Features You Get:**
+- **Connection Pooling**: Efficient database connections
+- **Read Replicas**: Fast read queries globally
+- **Branching**: Create database copies for testing
+- **Point-in-time Recovery**: Restore to any moment in time
+- **Monitoring**: Built-in performance insights
 
 **Database Migration (Moving from SQLite to Production):**
 1. **Export your data** from SQLite:
