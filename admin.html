@@ -26,6 +26,51 @@
             margin-bottom: 10px;
         }
         
+        .logout-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+        
+        .logout-button:hover {
+            background: #b91c1c;
+        }
+        
+        .auth-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .auth-loading .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #1e40af;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -148,7 +193,15 @@
     </style>
 </head>
 <body>
-    <div class="admin-container">
+    <!-- Authentication Loading Screen -->
+    <div id="authLoading" class="auth-loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Logout Button -->
+    <button id="logoutButton" class="logout-button" style="display: none;">Logout</button>
+
+    <div class="admin-container" id="adminContent" style="display: none;">
         <div class="admin-header">
             <h1>Admin Dashboard</h1>
             <p>Manage your Rumahs waitlist</p>
@@ -183,16 +236,101 @@
     </div>
 
     <script>
-        // Load data when page loads
+        // Authentication System
+        async function checkAuthentication() {
+            try {
+                const response = await fetch('/api/auth', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (!data.authenticated) {
+                    // Not authenticated, redirect to login
+                    window.location.href = '/admin-login.html';
+                    return false;
+                }
+                
+                // Authenticated, show admin content
+                document.getElementById('authLoading').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                document.getElementById('logoutButton').style.display = 'block';
+                
+                return true;
+            } catch (error) {
+                console.error('Authentication check failed:', error);
+                // On error, redirect to login for security
+                window.location.href = '/admin-login.html';
+                return false;
+            }
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        action: 'logout'
+                    })
+                });
+                
+                // Clear local storage
+                localStorage.removeItem('admin_session');
+                
+                // Redirect to login
+                window.location.href = '/admin-login.html';
+            } catch (error) {
+                console.error('Logout failed:', error);
+                // Force redirect anyway
+                window.location.href = '/admin-login.html';
+            }
+        }
+
+        // Set up logout button
         document.addEventListener('DOMContentLoaded', function() {
-            loadStats();
-            loadWaitlist();
+            document.getElementById('logoutButton').addEventListener('click', logout);
+        });
+
+        // Secure API request function
+        async function secureApiRequest(url, options = {}) {
+            const defaultOptions = {
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                }
+            };
+            
+            const response = await fetch(url, { ...defaultOptions, ...options });
+            
+            // Check if session expired
+            if (response.status === 401) {
+                window.location.href = '/admin-login.html';
+                throw new Error('Session expired');
+            }
+            
+            return response;
+        }
+
+        // Load data when page loads (after authentication)
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check authentication first
+            const isAuthenticated = await checkAuthentication();
+            if (isAuthenticated) {
+                loadStats();
+                loadWaitlist();
+            }
         });
 
         // Load statistics
         async function loadStats() {
             try {
-                const response = await fetch('/api/waitlist/stats');
+                const response = await secureApiRequest('/api/waitlist/stats');
                 const data = await response.json();
                 
                 if (data.success) {
@@ -221,7 +359,7 @@
         // Load waitlist data
         async function loadWaitlist() {
             try {
-                const response = await fetch('/api/waitlist');
+                const response = await secureApiRequest('/api/waitlist');
                 const data = await response.json();
                 
                 if (data.success) {

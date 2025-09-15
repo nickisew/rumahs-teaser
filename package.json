@@ -9,16 +9,21 @@
     "init-db": "node init-db.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "pg": "^8.11.3",
+    "@neondatabase/serverless": "^1.0.1",
     "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.10.0",
     "helmet": "^7.0.0",
-    "express-rate-limit": "^6.10.0"
+    "pg": "^8.11.3"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
-  "keywords": ["waitlist", "landing-page", "digital-nomads"],
+  "keywords": [
+    "waitlist",
+    "landing-page",
+    "digital-nomads"
+  ],
   "author": "Your Name",
   "license": "MIT"
 }
