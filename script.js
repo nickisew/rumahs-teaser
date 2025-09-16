@@ -12,7 +12,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const facebook = document.getElementById('facebook').value;
         const willingToPay = document.getElementById('willingToPay').checked;
         
-        // Validate Facebook URL
+        // Check if Facebook URL is empty or missing
+        if (!facebook || facebook.trim() === '') {
+            alert('We apologize if you don\'t have Facebook, but at this time we can only permit verified Facebook users into the Grupo Community to promote trust and safety in our beta version!');
+            return;
+        }
+        
+        // Validate Facebook URL format
         if (!isValidFacebookUrl(facebook)) {
             alert('Please enter a valid Facebook profile URL (e.g., facebook.com/username)');
             return;
