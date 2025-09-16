@@ -1,3 +1,6 @@
+// Load environment variables
+require('dotenv').config({ path: ['.env.development.local', '.env.local', '.env'] });
+
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
