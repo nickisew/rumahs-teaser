@@ -16,8 +16,8 @@ function hashPassword(password, salt) {
 // Admin credentials (in production, store hashed in database)
 const ADMIN_CREDENTIALS = {
     username: process.env.ADMIN_USERNAME || 'admin',
-    // Default password: 'admin123' - CHANGE THIS!
-    passwordHash: process.env.ADMIN_PASSWORD_HASH || '3b134b2c3fb13e86d0ad85ef521fac558477a9f33c39609681756fab8e9a896370c317971d1ef3f7ad30a06b2dcf611922cba51d27b7a23eddc0069fcc44da0f',
+    // Default password: 'Bellaboo050523!' - CHANGE THIS!
+    passwordHash: process.env.ADMIN_PASSWORD_HASH || 'bd3e8cfb15bf0811b33f93bc493275f75adadb658e01de6c1d9a447272754724eb391887f54d6d6d285d6f34e742e57ec2047f84f3ecede3b8d65ecf62e530f9',
     salt: process.env.ADMIN_PASSWORD_SALT || 'rumahs-admin-salt-2025'
 };
 
@@ -104,6 +104,17 @@ export default async function handler(req, res) {
 
             // Check credentials
             const inputPasswordHash = hashPassword(password, ADMIN_CREDENTIALS.salt);
+            
+            // Debug logging
+            console.log('Login attempt:', {
+                providedUsername: username,
+                expectedUsername: ADMIN_CREDENTIALS.username,
+                usernameMatch: username === ADMIN_CREDENTIALS.username,
+                providedPasswordHash: inputPasswordHash,
+                expectedPasswordHash: ADMIN_CREDENTIALS.passwordHash,
+                passwordMatch: inputPasswordHash === ADMIN_CREDENTIALS.passwordHash,
+                salt: ADMIN_CREDENTIALS.salt
+            });
             
             if (username !== ADMIN_CREDENTIALS.username || inputPasswordHash !== ADMIN_CREDENTIALS.passwordHash) {
                 return res.status(401).json({

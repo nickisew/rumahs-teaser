@@ -1,4 +1,5 @@
 const { Pool } = require('pg');
+const { sendWelcomeEmail } = require('./emailService');
 
 // Create a connection pool for PostgreSQL
 const pool = new Pool({
@@ -129,10 +130,21 @@ export default async function handler(req, res) {
                 [email, facebook, willingToPay || false, ipAddress, userAgent]
             );
 
+            // Send welcome email (don't fail the signup if email fails)
+            let emailStatus = null;
+            try {
+                emailStatus = await sendWelcomeEmail(email);
+                console.log('Email send result:', emailStatus);
+            } catch (emailError) {
+                console.error('Failed to send welcome email:', emailError);
+                emailStatus = { success: false, message: 'Failed to send welcome email' };
+            }
+
             res.json({
                 success: true,
                 message: 'Successfully joined the waitlist!',
-                id: result.rows[0].id
+                id: result.rows[0].id,
+                emailSent: emailStatus ? emailStatus.success : false
             });
         } catch (error) {
             if (error.code === '23505') { // Unique constraint violation

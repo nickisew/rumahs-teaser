@@ -282,6 +282,17 @@ body {
     backdrop-filter: none;
 }
 
+.success-message .form-container {
+    background: #ffffff;
+    padding: 50px 40px;
+    border-radius: 0;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border: 2px solid #1e40af;
+}
+
 .success-message h2 {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 1.8rem;
@@ -294,7 +305,7 @@ body {
 .success-message p {
     font-family: 'Outfit', sans-serif;
     font-size: 1.1rem;
-    color: #4a5568;
+    color: #1e40af;
     margin-bottom: 35px;
     letter-spacing: 0.02em;
 }
