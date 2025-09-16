@@ -181,7 +181,7 @@ export default async function handler(req, res) {
         }
 
         try {
-            // Insert into database
+            // First, try to insert a new entry
             const result = await pool.query(
                 `INSERT INTO waitlist (email, facebook, willing_to_pay, status, ip_address, user_agent) 
                  VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
@@ -206,7 +206,47 @@ export default async function handler(req, res) {
                 emailSent: emailStatus ? emailStatus.success : false
             });
         } catch (error) {
-            if (error.code === '23505') { // Unique constraint violation
+            if (error.code === '23505') { // Unique constraint violation - email already exists
+                // Check if existing entry is incomplete and can be updated
+                try {
+                    const checkSql = `SELECT id, status, facebook FROM waitlist WHERE email = $1`;
+                    const existingEntry = await pool.query(checkSql, [email]);
+                    
+                    if (existingEntry.rows.length > 0) {
+                        const existing = existingEntry.rows[0];
+                        
+                        // If existing entry is incomplete and user is now providing Facebook
+                        if (existing.status === 'incomplete' && normalizedFacebook) {
+                            const updateSql = `UPDATE waitlist 
+                                             SET facebook = $1, willing_to_pay = $2, status = $3, 
+                                                 ip_address = $4, user_agent = $5, timestamp = CURRENT_TIMESTAMP
+                                             WHERE email = $6 RETURNING id`;
+                            
+                            const updateResult = await pool.query(updateSql, [
+                                normalizedFacebook, willingToPay || false, status, ipAddress, userAgent, email
+                            ]);
+                            
+                            return res.json({
+                                success: true,
+                                message: 'Successfully updated your profile and joined the waitlist!',
+                                id: updateResult.rows[0].id,
+                                status: status,
+                                emailSent: false // Skip email for updates
+                            });
+                        } else {
+                            // Entry already exists and is complete, or no Facebook provided for incomplete entry
+                            return res.status(409).json({
+                                success: false,
+                                message: existing.status === 'complete' 
+                                    ? 'This email is already on the waitlist!' 
+                                    : 'Please provide a Facebook profile to complete your registration.'
+                            });
+                        }
+                    }
+                } catch (updateError) {
+                    console.error('Error updating existing entry:', updateError);
+                }
+                
                 return res.status(409).json({
                     success: false,
                     message: 'This email is already on the waitlist!'
