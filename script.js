@@ -15,22 +15,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear any existing validation messages
         clearValidationMessage();
         
-        // Check if Facebook URL is empty or missing
-        if (!facebook || facebook.trim() === '') {
-            showValidationMessage('facebook-error');
-            document.getElementById('facebook').classList.add('error');
-            return;
+        // Validate Facebook URL format if provided
+        let normalizedFacebook = '';
+        if (facebook && facebook.trim() !== '') {
+            if (!isValidFacebookUrl(facebook)) {
+                showValidationMessage('facebook-error', 'Please enter a valid Facebook profile URL (e.g., facebook.com/username)');
+                document.getElementById('facebook').classList.add('error');
+                return;
+            }
+            normalizedFacebook = normalizeFacebookUrl(facebook);
         }
-        
-        // Validate Facebook URL format
-        if (!isValidFacebookUrl(facebook)) {
-            showValidationMessage('facebook-error', 'Please enter a valid Facebook profile URL (e.g., facebook.com/username)');
-            document.getElementById('facebook').classList.add('error');
-            return;
-        }
-        
-        // Normalize the Facebook URL before sending
-        const normalizedFacebook = normalizeFacebookUrl(facebook);
         
         // Show loading state
         const submitBtn = form.querySelector('.submit-btn');
@@ -55,9 +49,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
             
             if (result.success) {
-                // Show success message
-                waitlistForm.style.display = 'none';
-                successMessage.style.display = 'flex';
+                // Check if entry is complete or incomplete
+                if (result.status === 'incomplete') {
+                    // Show Facebook requirement message
+                    showIncompleteEntryMessage();
+                } else {
+                    // Show normal success message
+                    waitlistForm.style.display = 'none';
+                    successMessage.style.display = 'flex';
+                }
                 
                 // Reset form
                 form.reset();
@@ -84,10 +84,27 @@ function showForm() {
     document.getElementById('waitlistForm').style.display = 'flex';
 }
 
+// Show the waitlist form with focus on Facebook field
+function showFormWithFocus() {
+    hideForm();
+    document.getElementById('waitlistForm').style.display = 'flex';
+    // Focus on Facebook field after a short delay to ensure form is visible
+    setTimeout(() => {
+        document.getElementById('facebook').focus();
+    }, 100);
+}
+
+// Show incomplete entry message
+function showIncompleteEntryMessage() {
+    document.getElementById('waitlistForm').style.display = 'none';
+    document.getElementById('incompleteMessage').style.display = 'flex';
+}
+
 // Hide the form and go back to main view
 function hideForm() {
     document.getElementById('waitlistForm').style.display = 'none';
     document.getElementById('successMessage').style.display = 'none';
+    document.getElementById('incompleteMessage').style.display = 'none';
 }
 
 // Validate and normalize Facebook URL

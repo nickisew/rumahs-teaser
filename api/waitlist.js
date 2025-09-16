@@ -99,12 +99,19 @@ async function initializeDatabase() {
             CREATE TABLE IF NOT EXISTS waitlist (
                 id SERIAL PRIMARY KEY,
                 email VARCHAR(255) UNIQUE NOT NULL,
-                facebook TEXT NOT NULL,
+                facebook TEXT,
                 willing_to_pay BOOLEAN DEFAULT false,
+                status VARCHAR(50) DEFAULT 'incomplete',
                 timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 ip_address INET,
                 user_agent TEXT
             )
+        `);
+        
+        // Add status column to existing tables if it doesn't exist
+        await pool.query(`
+            ALTER TABLE waitlist 
+            ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'incomplete'
         `);
     } catch (error) {
         console.error('Error initializing database:', error);
@@ -144,10 +151,10 @@ export default async function handler(req, res) {
         }
 
         // Validation
-        if (!email || !facebook) {
+        if (!email) {
             return res.status(400).json({
                 success: false,
-                message: 'Email and Facebook profile are required'
+                message: 'Email is required'
             });
         }
 
@@ -158,22 +165,27 @@ export default async function handler(req, res) {
             });
         }
 
-        if (!isValidFacebookUrl(facebook)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Please enter a valid Facebook profile URL'
-            });
+        // Determine status and handle Facebook URL
+        let normalizedFacebook = null;
+        let status = 'incomplete';
+        
+        if (facebook && facebook.trim() !== '') {
+            if (!isValidFacebookUrl(facebook)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Please enter a valid Facebook profile URL'
+                });
+            }
+            normalizedFacebook = normalizeFacebookUrl(facebook);
+            status = 'complete';
         }
-
-        // Normalize the Facebook URL before storing
-        const normalizedFacebook = normalizeFacebookUrl(facebook);
 
         try {
             // Insert into database
             const result = await pool.query(
-                `INSERT INTO waitlist (email, facebook, willing_to_pay, ip_address, user_agent) 
-                 VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-                [email, normalizedFacebook, willingToPay || false, ipAddress, userAgent]
+                `INSERT INTO waitlist (email, facebook, willing_to_pay, status, ip_address, user_agent) 
+                 VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+                [email, normalizedFacebook, willingToPay || false, status, ipAddress, userAgent]
             );
 
             // Send welcome email (don't fail the signup if email fails)
@@ -188,8 +200,9 @@ export default async function handler(req, res) {
 
             res.json({
                 success: true,
-                message: 'Successfully joined the waitlist!',
+                message: status === 'complete' ? 'Successfully joined the waitlist!' : 'Entry recorded, but Facebook profile needed for full access',
                 id: result.rows[0].id,
+                status: status,
                 emailSent: emailStatus ? emailStatus.success : false
             });
         } catch (error) {

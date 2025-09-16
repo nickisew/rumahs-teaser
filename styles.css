@@ -567,3 +567,23 @@ body {
     border-color: #dc2626;
     box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
+
+/* Facebook requirement box */
+.facebook-requirement-box {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 4px;
+    text-align: left;
+}
+
+.facebook-requirement-box p {
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.facebook-requirement-box p:last-child {
+    margin-bottom: 0;
+}
