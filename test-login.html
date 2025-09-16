@@ -39,11 +39,26 @@
                     })
                 });
                 
-                const data = await response.json();
-                resultDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                // Show raw response details
+                resultDiv.innerHTML = `
+                    <p><strong>Status:</strong> ${response.status}</p>
+                    <p><strong>Status Text:</strong> ${response.statusText}</p>
+                    <p><strong>Headers:</strong> ${response.headers.get('content-type')}</p>
+                `;
+                
+                const responseText = await response.text();
+                resultDiv.innerHTML += `<p><strong>Raw Response:</strong></p><pre>${responseText}</pre>`;
+                
+                // Try to parse as JSON if possible
+                try {
+                    const data = JSON.parse(responseText);
+                    resultDiv.innerHTML += `<p><strong>Parsed JSON:</strong></p><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } catch (parseError) {
+                    resultDiv.innerHTML += `<p style="color: red;"><strong>JSON Parse Error:</strong> ${parseError.message}</p>`;
+                }
                 
             } catch (error) {
-                resultDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+                resultDiv.innerHTML = `<p style="color: red;">Network Error: ${error.message}</p>`;
             }
         });
     </script>
