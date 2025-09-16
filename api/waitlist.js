@@ -17,13 +17,56 @@ function isValidEmail(email) {
 }
 
 function isValidFacebookUrl(url) {
+    if (!url || url.trim() === '') {
+        return false;
+    }
+    
+    // Normalize the URL - add https:// if missing
+    let normalizedUrl = url.trim();
+    
+    // If it starts with facebook.com or fb.com, add https://
+    if (normalizedUrl.startsWith('facebook.com/') || normalizedUrl.startsWith('fb.com/')) {
+        normalizedUrl = 'https://' + normalizedUrl;
+    }
+    // If it starts with www.facebook.com or www.fb.com, add https://
+    else if (normalizedUrl.startsWith('www.facebook.com/') || normalizedUrl.startsWith('www.fb.com/')) {
+        normalizedUrl = 'https://' + normalizedUrl;
+    }
+    // If it doesn't have a protocol, try adding https://
+    else if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
+        normalizedUrl = 'https://' + normalizedUrl;
+    }
+    
     try {
-        const urlObj = new URL(url);
+        const urlObj = new URL(normalizedUrl);
         return urlObj.hostname.includes('facebook.com') || 
                urlObj.hostname.includes('fb.com');
     } catch {
         return false;
     }
+}
+
+function normalizeFacebookUrl(url) {
+    if (!url || url.trim() === '') {
+        return url;
+    }
+    
+    let normalizedUrl = url.trim();
+    
+    // If it starts with facebook.com or fb.com, add https://
+    if (normalizedUrl.startsWith('facebook.com/') || normalizedUrl.startsWith('fb.com/')) {
+        normalizedUrl = 'https://' + normalizedUrl;
+    }
+    // If it starts with www.facebook.com or www.fb.com, add https://
+    else if (normalizedUrl.startsWith('www.facebook.com/') || normalizedUrl.startsWith('www.fb.com/')) {
+        normalizedUrl = 'https://' + normalizedUrl;
+    }
+    // If it doesn't have a protocol, try adding https://
+    else if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
+        normalizedUrl = 'https://' + normalizedUrl;
+    }
+    
+    return normalizedUrl;
 }
 
 // Simple rate limiting
@@ -122,12 +165,15 @@ export default async function handler(req, res) {
             });
         }
 
+        // Normalize the Facebook URL before storing
+        const normalizedFacebook = normalizeFacebookUrl(facebook);
+
         try {
             // Insert into database
             const result = await pool.query(
                 `INSERT INTO waitlist (email, facebook, willing_to_pay, ip_address, user_agent) 
                  VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-                [email, facebook, willingToPay || false, ipAddress, userAgent]
+                [email, normalizedFacebook, willingToPay || false, ipAddress, userAgent]
             );
 
             // Send welcome email (don't fail the signup if email fails)

@@ -14,9 +14,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Validate Facebook URL
         if (!isValidFacebookUrl(facebook)) {
-            alert('Please enter a valid Facebook profile URL (e.g., https://facebook.com/username)');
+            alert('Please enter a valid Facebook profile URL (e.g., facebook.com/username)');
             return;
         }
+        
+        // Normalize the Facebook URL before sending
+        const normalizedFacebook = normalizeFacebookUrl(facebook);
         
         // Show loading state
         const submitBtn = form.querySelector('.submit-btn');
@@ -33,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({
                     email: email,
-                    facebook: facebook,
+                    facebook: normalizedFacebook,
                     willingToPay: willingToPay
                 })
             });
@@ -76,15 +79,59 @@ function hideForm() {
     document.getElementById('successMessage').style.display = 'none';
 }
 
-// Validate Facebook URL
+// Validate and normalize Facebook URL
 function isValidFacebookUrl(url) {
+    if (!url || url.trim() === '') {
+        return false;
+    }
+    
+    // Normalize the URL - add https:// if missing
+    let normalizedUrl = url.trim();
+    
+    // If it starts with facebook.com or fb.com, add https://
+    if (normalizedUrl.startsWith('facebook.com/') || normalizedUrl.startsWith('fb.com/')) {
+        normalizedUrl = 'https://' + normalizedUrl;
+    }
+    // If it starts with www.facebook.com or www.fb.com, add https://
+    else if (normalizedUrl.startsWith('www.facebook.com/') || normalizedUrl.startsWith('www.fb.com/')) {
+        normalizedUrl = 'https://' + normalizedUrl;
+    }
+    // If it doesn't have a protocol, try adding https://
+    else if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
+        normalizedUrl = 'https://' + normalizedUrl;
+    }
+    
     try {
-        const urlObj = new URL(url);
+        const urlObj = new URL(normalizedUrl);
         return urlObj.hostname.includes('facebook.com') || 
                urlObj.hostname.includes('fb.com');
     } catch {
         return false;
     }
+}
+
+// Normalize Facebook URL for submission
+function normalizeFacebookUrl(url) {
+    if (!url || url.trim() === '') {
+        return url;
+    }
+    
+    let normalizedUrl = url.trim();
+    
+    // If it starts with facebook.com or fb.com, add https://
+    if (normalizedUrl.startsWith('facebook.com/') || normalizedUrl.startsWith('fb.com/')) {
+        normalizedUrl = 'https://' + normalizedUrl;
+    }
+    // If it starts with www.facebook.com or www.fb.com, add https://
+    else if (normalizedUrl.startsWith('www.facebook.com/') || normalizedUrl.startsWith('www.fb.com/')) {
+        normalizedUrl = 'https://' + normalizedUrl;
+    }
+    // If it doesn't have a protocol, try adding https://
+    else if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
+        normalizedUrl = 'https://' + normalizedUrl;
+    }
+    
+    return normalizedUrl;
 }
 
 // Basic analytics tracking
