@@ -49,13 +49,21 @@ async function initializeDatabase() {
             CREATE TABLE IF NOT EXISTS waitlist (
                 id SERIAL PRIMARY KEY,
                 email VARCHAR(255) UNIQUE NOT NULL,
-                facebook TEXT NOT NULL,
+                facebook TEXT,
                 willing_to_pay BOOLEAN DEFAULT false,
+                status VARCHAR(50) DEFAULT 'incomplete',
                 timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 ip_address INET,
                 user_agent TEXT
             )
         `);
+        
+        // Add status column to existing tables if it doesn't exist
+        await pool.query(`
+            ALTER TABLE waitlist 
+            ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'incomplete'
+        `);
+        
         console.log('Database table initialized');
     } catch (error) {
         console.error('Error initializing database:', error);
@@ -73,10 +81,10 @@ app.post('/api/waitlist', limiter, (req, res) => {
     const userAgent = req.get('User-Agent');
 
     // Validation
-    if (!email || !facebook) {
+    if (!email) {
         return res.status(400).json({ 
             success: false, 
-            message: 'Email and Facebook profile are required' 
+            message: 'Email is required' 
         });
     }
 
@@ -87,23 +95,32 @@ app.post('/api/waitlist', limiter, (req, res) => {
         });
     }
 
-    if (!isValidFacebookUrl(facebook)) {
-        return res.status(400).json({ 
-            success: false, 
-            message: 'Please enter a valid Facebook profile URL' 
-        });
+    // Determine status and handle Facebook URL
+    let normalizedFacebook = null;
+    let status = 'incomplete';
+    
+    if (facebook && facebook.trim() !== '') {
+        if (!isValidFacebookUrl(facebook)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please enter a valid Facebook profile URL'
+            });
+        }
+        normalizedFacebook = normalizeFacebookUrl(facebook);
+        status = 'complete';
     }
 
     // Insert into database
-    const sql = `INSERT INTO waitlist (email, facebook, willing_to_pay, ip_address, user_agent) 
-                  VALUES ($1, $2, $3, $4, $5) RETURNING id`;
+    const sql = `INSERT INTO waitlist (email, facebook, willing_to_pay, status, ip_address, user_agent) 
+                  VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`;
     
-    pool.query(sql, [email, facebook, willingToPay || false, ipAddress, userAgent])
+    pool.query(sql, [email, normalizedFacebook, willingToPay || false, status, ipAddress, userAgent])
         .then(result => {
             res.json({ 
                 success: true, 
-                message: 'Successfully joined the waitlist!',
-                id: result.rows[0].id
+                message: status === 'complete' ? 'Successfully joined the waitlist!' : 'Entry recorded, but Facebook profile needed for full access',
+                id: result.rows[0].id,
+                status: status
             });
         })
         .catch(err => {
@@ -123,7 +140,7 @@ app.post('/api/waitlist', limiter, (req, res) => {
 
 // Get all waitlist entries (for admin use)
 app.get('/api/waitlist', async (req, res) => {
-    const sql = `SELECT id, email, facebook, willing_to_pay, timestamp, ip_address, user_agent 
+    const sql = `SELECT id, email, facebook, willing_to_pay, status, timestamp, ip_address, user_agent 
                   FROM waitlist 
                   ORDER BY timestamp DESC`;
     
@@ -185,7 +202,7 @@ app.get('/api/waitlist/stats', async (req, res) => {
 
 // Export waitlist as CSV
 app.get('/api/waitlist/export', async (req, res) => {
-    const sql = `SELECT email, facebook, willing_to_pay, timestamp, ip_address 
+    const sql = `SELECT email, facebook, willing_to_pay, status, timestamp, ip_address 
                   FROM waitlist 
                   ORDER BY timestamp DESC`;
     
@@ -193,9 +210,9 @@ app.get('/api/waitlist/export', async (req, res) => {
         const result = await pool.query(sql);
         
         // Convert to CSV
-        const csvHeader = 'Email,Facebook Profile,Willing to Pay,Timestamp,IP Address\n';
+        const csvHeader = 'Email,Facebook Profile,Willing to Pay,Status,Timestamp,IP Address\n';
         const csvRows = result.rows.map(row => 
-            `"${row.email}","${row.facebook}","${row.willing_to_pay ? 'Yes' : 'No'}","${row.timestamp}","${row.ip_address}"`
+            `"${row.email}","${row.facebook || ''}","${row.willing_to_pay ? 'Yes' : 'No'}","${row.status}","${row.timestamp}","${row.ip_address}"`
         ).join('\n');
         const csv = csvHeader + csvRows;
         
@@ -218,13 +235,56 @@ function isValidEmail(email) {
 }
 
 function isValidFacebookUrl(url) {
+    if (!url || url.trim() === '') {
+        return false;
+    }
+    
+    // Normalize the URL - add https:// if missing
+    let normalizedUrl = url.trim();
+    
+    // If it starts with facebook.com or fb.com, add https://
+    if (normalizedUrl.startsWith('facebook.com/') || normalizedUrl.startsWith('fb.com/')) {
+        normalizedUrl = 'https://' + normalizedUrl;
+    }
+    // If it starts with www.facebook.com or www.fb.com, add https://
+    else if (normalizedUrl.startsWith('www.facebook.com/') || normalizedUrl.startsWith('www.fb.com/')) {
+        normalizedUrl = 'https://' + normalizedUrl;
+    }
+    // If it doesn't have a protocol, try adding https://
+    else if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
+        normalizedUrl = 'https://' + normalizedUrl;
+    }
+    
     try {
-        const urlObj = new URL(url);
+        const urlObj = new URL(normalizedUrl);
         return urlObj.hostname.includes('facebook.com') || 
                urlObj.hostname.includes('fb.com');
     } catch {
         return false;
     }
+}
+
+function normalizeFacebookUrl(url) {
+    if (!url || url.trim() === '') {
+        return url;
+    }
+    
+    let normalizedUrl = url.trim();
+    
+    // If it starts with facebook.com or fb.com, add https://
+    if (normalizedUrl.startsWith('facebook.com/') || normalizedUrl.startsWith('fb.com/')) {
+        normalizedUrl = 'https://' + normalizedUrl;
+    }
+    // If it starts with www.facebook.com or www.fb.com, add https://
+    else if (normalizedUrl.startsWith('www.facebook.com/') || normalizedUrl.startsWith('www.fb.com/')) {
+        normalizedUrl = 'https://' + normalizedUrl;
+    }
+    // If it doesn't have a protocol, try adding https://
+    else if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
+        normalizedUrl = 'https://' + normalizedUrl;
+    }
+    
+    return normalizedUrl;
 }
 
 // Start server
