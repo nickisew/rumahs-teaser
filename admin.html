@@ -388,6 +388,7 @@
                         <tr>
                             <th>Email</th>
                             <th>Facebook Profile</th>
+                            <th>Status</th>
                             <th>Willing to Pay</th>
                             <th>Date</th>
                             <th>IP Address</th>
@@ -399,10 +400,15 @@
             waitlistData.forEach(entry => {
                 const date = new Date(entry.timestamp).toLocaleDateString();
                 const willingToPay = entry.willing_to_pay ? 'Yes' : 'No';
+                const status = entry.status || 'complete'; // Default to complete for older entries
+                const statusDisplay = status.charAt(0).toUpperCase() + status.slice(1);
+                const statusColor = status === 'complete' ? '#16a34a' : '#f59e0b';
+                
                 tableHTML += `
                     <tr>
                         <td>${entry.email}</td>
-                        <td><a href="${entry.facebook}" target="_blank" style="color: #1e40af;">View Profile</a></td>
+                        <td>${entry.facebook ? `<a href="${entry.facebook}" target="_blank" style="color: #1e40af; text-decoration: underline;">${entry.facebook}</a>` : '<span style="color: #9ca3af;">No Facebook profile</span>'}</td>
+                        <td><span style="color: ${statusColor}; font-weight: 500;">${statusDisplay}</span></td>
                         <td>${willingToPay}</td>
                         <td>${date}</td>
                         <td>${entry.ip_address}</td>
