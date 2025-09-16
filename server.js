@@ -67,6 +67,12 @@ async function initializeDatabase() {
             ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'incomplete'
         `);
         
+        // Update existing facebook column to allow NULL values
+        await pool.query(`
+            ALTER TABLE waitlist 
+            ALTER COLUMN facebook DROP NOT NULL
+        `);
+        
         console.log('Database table initialized');
     } catch (error) {
         console.error('Error initializing database:', error);
