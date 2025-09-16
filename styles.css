@@ -535,3 +535,35 @@ body {
         margin: 18px 0;
     }
 }
+
+/* Custom Validation Message */
+.validation-message {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 12px 16px;
+    font-size: 0.875rem;
+    font-family: 'Outfit', sans-serif;
+    line-height: 1.4;
+    margin-top: 8px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.validation-message::before {
+    content: '⚠️';
+    margin-right: 8px;
+    font-size: 0.875rem;
+}
+
+/* Input error state */
+.form-group input.error {
+    border-color: #dc2626;
+    background: #fef2f2;
+}
+
+.form-group input.error:focus {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}

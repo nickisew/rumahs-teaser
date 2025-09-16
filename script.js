@@ -12,15 +12,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const facebook = document.getElementById('facebook').value;
         const willingToPay = document.getElementById('willingToPay').checked;
         
+        // Clear any existing validation messages
+        clearValidationMessage();
+        
         // Check if Facebook URL is empty or missing
         if (!facebook || facebook.trim() === '') {
-            alert('We apologize if you don\'t have Facebook, but at this time we can only permit verified Facebook users into the Grupo Community to promote trust and safety in our beta version!');
+            showValidationMessage('facebook-error');
+            document.getElementById('facebook').classList.add('error');
             return;
         }
         
         // Validate Facebook URL format
         if (!isValidFacebookUrl(facebook)) {
-            alert('Please enter a valid Facebook profile URL (e.g., facebook.com/username)');
+            showValidationMessage('facebook-error', 'Please enter a valid Facebook profile URL (e.g., facebook.com/username)');
+            document.getElementById('facebook').classList.add('error');
             return;
         }
         
@@ -153,3 +158,31 @@ function trackEvent(eventName, data) {
 
 // Track form view when page loads
 trackEvent('form_view', { timestamp: new Date().toISOString() });
+
+// Validation message helper functions
+function showValidationMessage(elementId, customMessage) {
+    const messageElement = document.getElementById(elementId);
+    if (messageElement) {
+        if (customMessage) {
+            messageElement.textContent = customMessage;
+        }
+        messageElement.style.display = 'block';
+    }
+}
+
+function clearValidationMessage() {
+    const messageElement = document.getElementById('facebook-error');
+    const inputElement = document.getElementById('facebook');
+    
+    if (messageElement) {
+        messageElement.style.display = 'none';
+    }
+    if (inputElement) {
+        inputElement.classList.remove('error');
+    }
+}
+
+// Clear validation message when user starts typing
+document.getElementById('facebook').addEventListener('input', function() {
+    clearValidationMessage();
+});
