@@ -105,17 +105,6 @@ export default async function handler(req, res) {
             // Check credentials
             const inputPasswordHash = hashPassword(password, ADMIN_CREDENTIALS.salt);
             
-            // Debug logging
-            console.log('Login attempt:', {
-                providedUsername: username,
-                expectedUsername: ADMIN_CREDENTIALS.username,
-                usernameMatch: username === ADMIN_CREDENTIALS.username,
-                providedPasswordHash: inputPasswordHash,
-                expectedPasswordHash: ADMIN_CREDENTIALS.passwordHash,
-                passwordMatch: inputPasswordHash === ADMIN_CREDENTIALS.passwordHash,
-                salt: ADMIN_CREDENTIALS.salt
-            });
-            
             if (username !== ADMIN_CREDENTIALS.username || inputPasswordHash !== ADMIN_CREDENTIALS.passwordHash) {
                 return res.status(401).json({
                     success: false,

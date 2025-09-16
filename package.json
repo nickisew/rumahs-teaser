@@ -26,5 +26,8 @@
     "digital-nomads"
   ],
   "author": "Your Name",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": "18.x"
+  }
 }
