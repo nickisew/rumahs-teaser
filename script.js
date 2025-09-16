@@ -51,16 +51,24 @@ document.addEventListener('DOMContentLoaded', function() {
             if (result.success) {
                 // Check if entry is complete or incomplete
                 if (result.status === 'incomplete') {
+                    // Store email for when they want to add Facebook
+                    sessionStorage.setItem('incompleteEmail', email);
                     // Show Facebook requirement message
                     showIncompleteEntryMessage();
                 } else {
                     // Show normal success message
                     waitlistForm.style.display = 'none';
                     successMessage.style.display = 'flex';
+                    // Clear any stored email
+                    sessionStorage.removeItem('incompleteEmail');
                 }
                 
-                // Reset form
+                // Reset form and clear any stored data
                 form.reset();
+                // Reset email field styling if it was read-only
+                const emailField = document.getElementById('email');
+                emailField.readOnly = false;
+                emailField.style.backgroundColor = '';
                 
                 console.log('Successfully added to waitlist:', result);
             } else {
@@ -88,6 +96,15 @@ function showForm() {
 function showFormWithFocus() {
     hideForm();
     document.getElementById('waitlistForm').style.display = 'flex';
+    
+    // Pre-fill email if we have an incomplete entry
+    const storedEmail = sessionStorage.getItem('incompleteEmail');
+    if (storedEmail) {
+        document.getElementById('email').value = storedEmail;
+        document.getElementById('email').readOnly = true; // Make email read-only
+        document.getElementById('email').style.backgroundColor = '#f3f4f6'; // Visual indicator
+    }
+    
     // Focus on Facebook field after a short delay to ensure form is visible
     setTimeout(() => {
         document.getElementById('facebook').focus();
