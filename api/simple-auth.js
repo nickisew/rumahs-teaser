@@ -12,19 +12,38 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-        const { username, password } = req.body;
-        
-        // Super simple check - no hashing for now
-        if (username === 'admin' && password === 'Bellaboo050523!') {
-            return res.json({
-                success: true,
-                message: 'Login successful',
-                sessionToken: 'simple-session-token'
-            });
-        } else {
-            return res.status(401).json({
+        try {
+            // Debug: log the entire request
+            console.log('POST request received');
+            console.log('Headers:', req.headers);
+            console.log('Body:', req.body);
+            
+            const { username, password } = req.body || {};
+            
+            // Super simple check - no hashing for now
+            if (username === 'admin' && password === 'Bellaboo050523!') {
+                return res.status(200).json({
+                    success: true,
+                    message: 'Login successful',
+                    sessionToken: 'simple-session-token'
+                });
+            } else {
+                return res.status(401).json({
+                    success: false,
+                    message: `Invalid credentials. Got username: "${username}", password: "${password}"`,
+                    debug: {
+                        receivedBody: req.body,
+                        hasUsername: !!username,
+                        hasPassword: !!password
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error in POST handler:', error);
+            return res.status(500).json({
                 success: false,
-                message: `Invalid credentials. Got username: "${username}", password: "${password}"`
+                message: 'Server error',
+                error: error.message
             });
         }
     }
@@ -36,5 +55,10 @@ export default async function handler(req, res) {
         });
     }
 
-    res.status(405).json({ message: 'Method not allowed' });
+    console.log('Method not allowed. Received method:', req.method);
+    res.status(405).json({ 
+        message: 'Method not allowed',
+        receivedMethod: req.method,
+        allowedMethods: ['GET', 'POST', 'OPTIONS']
+    });
 }
