@@ -26,15 +26,15 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Get waitlist statistics
+        // Get waitlist statistics (daily breakdown)
         const result = await pool.query(`
             SELECT 
                 COUNT(*)::int as total,
                 COUNT(DISTINCT ip_address)::int as unique_ips,
-                DATE(timestamp) as signup_date,
+                DATE(timestamp AT TIME ZONE 'UTC') as signup_date,
                 COUNT(*)::int as daily_signups
             FROM waitlist 
-            GROUP BY DATE(timestamp)
+            GROUP BY DATE(timestamp AT TIME ZONE 'UTC')
             ORDER BY signup_date DESC
             LIMIT 30
         `);
@@ -48,12 +48,12 @@ export default async function handler(req, res) {
             FROM waitlist
         `);
 
-        // Get today's stats
+        // Get today's stats (using UTC date to match timestamp storage)
         const todayStats = await pool.query(`
             SELECT 
                 COUNT(*)::int as today_signups
             FROM waitlist 
-            WHERE DATE(timestamp) = CURRENT_DATE
+            WHERE DATE(timestamp AT TIME ZONE 'UTC') = CURRENT_DATE
         `);
 
         res.json({
