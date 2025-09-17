@@ -45,41 +45,30 @@ async function sendWelcomeEmail(userEmail, userName = '') {
             </div>
             
             <div style="padding: 30px 0;">
-                <h2 style="color: #1e40af; font-size: 1.8rem; margin-bottom: 20px;">Hey ${displayName}!</h2>
+                <h2 style="color: #1e40af; font-size: 1.3rem; margin-bottom: 20px;">Hey ${displayName}!</h2>
                 
                 <p style="font-size: 1.1rem; margin-bottom: 20px;">
                     Thanks for joining our waitlist! We're excited that you're interested in what we're building.
                 </p>
                 
                 <p style="font-size: 1.1rem; margin-bottom: 20px;">
-                    We know the feeling of traveling solo and wanting to stay somewhere cozier - with people you get along with or somewhere you can cook your own meals - somewhere that feels like home. Staying in hostels and shared apartments can get old.That's why we're building Rumahs.
+                    We know the feeling of traveling solo and wanting to stay somewhere cozier with people you get along with. Staying in hostels and co-working apartments can get old. It's easy to meet people online, but the logistics of actually splitting costs and finding rentals together is the tricky part we're solving. That's why we're building Rumahs.
                 </p>
                 
-                <div style="background: #f0f9ff; border: 2px solid #1e40af; padding: 25px; margin: 25px 0; border-radius: 5px;">
-                    <h3 style="color: #1e40af; margin-bottom: 15px;">What happens next?</h3>
-                    <p style="margin-bottom: 15px;">We're working to build something you'll actually want to use (not just another app that sounds good in theory). Here's what you can expect:</p>
-                    <ul style="text-align: left; padding-left: 20px;">
-                        <li style="margin-bottom: 10px;">Updates on our progress - the real stuff, not just marketing fluff</li>
-                        <li style="margin-bottom: 10px;">Early access when we're ready to launch</li>
-                        <li style="margin-bottom: 10px;">Maybe an invite to meet other nomads who signed up if we do any events</li>
-                    </ul>
-                </div>
+                <h3 style="color: #1e40af; font-size: 1.3rem; margin-bottom: 15px;">What happens next?</h3>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">We're working to build something you'll actually want to use (not just another app that sounds good in theory). Here's what you can expect:</p>
+                <ul style="text-align: left; padding-left: 20px; font-size: 1.1rem; margin-bottom: 20px;">
+                    <li style="margin-bottom: 10px;">Updates on our progress - the real stuff, not just marketing fluff</li>
+                    <li style="margin-bottom: 10px;">Early access when we're ready to launch</li>
+                    <li style="margin-bottom: 10px;">Maybe an invite to meet other nomads who signed up if we do any events</li>
+                </ul>
                 
-                <p style="font-size: 1.1rem; margin-bottom: 20px;">
-                    The whole idea came from my own solo travels to Indonesia where I kept wishing I had travel companions to share amazing places with. It's easy to meet people online, but the logistics of actually splitting costs and finding rentals together is the tricky part we're solving.
-                </p>
-                
-                <div style="text-align: center; margin: 30px 0; background: #f8fafc; padding: 20px; border-radius: 5px;">
-                    <p style="color: #64748b; font-style: italic; margin: 0;">
-                        "Meet nomads who want to share beautiful homes and plan your next remote adventure <em>together</em>."
-                    </p>
-                </div>
                 
                 <p style="font-size: 1.1rem; margin-bottom: 20px;">
                     Before we build this, we want to make sure real people would actually use it. If you like the idea but have any concerns about what might deter you, just reply to this email - we genuinely want to build the best version possible.
                 </p>
                 
-                <p style="font-size: 1rem; color: #64748b;">
+                <p style="font-size: 1.1rem; margin-bottom: 20px;">
                     Hope to see you sharing villas and making new friends from all over the world soon :)
                 </p>
                 
@@ -98,7 +87,7 @@ Hey ${displayName}!
 
 Thanks for joining our waitlist! We're excited that you're interested in what we're building.
 
-We know the feeling of traveling solo and wanting to stay somewhere cozier - with people you get along with or somewhere you can cook your own meals - somewhere that feels like home. Staying in hostels and shared apartments can get old.That's why we're building Rumahs.
+We know the feeling of traveling solo and wanting to stay somewhere cozier with people you get along with. Staying in hostels and co-working apartments can get old. It's easy to meet people online, but the logistics of actually splitting costs and finding rentals together is the tricky part we're solving. That's why we're building Rumahs.
 
 What happens next?
 We're working to build something you'll actually want to use (not just another app that sounds good in theory). Here's what you can expect:
@@ -106,10 +95,6 @@ We're working to build something you'll actually want to use (not just another a
 • Updates on our progress - the real stuff, not just marketing fluff
 • Early access when we're ready to launch
 • Maybe an invite to meet other nomads who signed up if we do any events
-
-The whole idea came from my own solo travels to Indonesia where I kept wishing I had travel companions to share amazing places with. It's easy to meet people online, but the logistics of actually splitting costs and finding rentals together is the tricky part we're solving.
-
-"Meet nomads who want to share beautiful homes and plan your next remote adventure together."
 
 Before we build this, we want to make sure real people would actually use it. If you like the idea but have any concerns about what might deter you, just reply to this email - we genuinely want to build the best version possible.
 
