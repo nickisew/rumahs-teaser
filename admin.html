@@ -400,7 +400,16 @@
             waitlistData.forEach(entry => {
                 const date = new Date(entry.timestamp).toLocaleDateString();
                 const willingToPay = entry.willing_to_pay ? 'Yes' : 'No';
-                const status = entry.status || 'complete'; // Default to complete for older entries
+                
+                // Determine status based on whether they have a Facebook profile
+                let status;
+                if (entry.status) {
+                    status = entry.status; // Use database status if available
+                } else {
+                    // For older entries without status field, check if they have Facebook
+                    status = entry.facebook ? 'complete' : 'incomplete';
+                }
+                
                 const statusDisplay = status.charAt(0).toUpperCase() + status.slice(1);
                 const statusColor = status === 'complete' ? '#16a34a' : '#f59e0b';
                 
