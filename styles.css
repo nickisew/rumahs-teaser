@@ -344,6 +344,17 @@ body {
     border-color: rgba(30, 64, 175, 0.2);
 }
 
+/* Footer section heading (non-clickable) */
+.footer-nav span {
+    color: #1e40af;
+    font-size: 1.1rem;
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 15px;
+}
+
 /* About Page Styles */
 .back-button-container {
     position: absolute;
