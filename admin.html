@@ -225,7 +225,7 @@
         <div class="admin-actions">
             <button class="admin-btn" onclick="refreshData()">Refresh Data</button>
             <a href="/api/waitlist/export" class="admin-btn secondary">Export CSV</a>
-            <a href="index.html" class="admin-btn secondary">View Landing Page</a>
+            <a href="/" class="admin-btn secondary">View Landing Page</a>
         </div>
 
         <div id="messageContainer"></div>
@@ -247,7 +247,7 @@
                 
                 if (!data.authenticated) {
                     // Not authenticated, redirect to login
-                    window.location.href = '/admin-login.html';
+                    window.location.href = '/admin-login';
                     return false;
                 }
                 
@@ -260,7 +260,7 @@
             } catch (error) {
                 console.error('Authentication check failed:', error);
                 // On error, redirect to login for security
-                window.location.href = '/admin-login.html';
+                window.location.href = '/admin-login';
                 return false;
             }
         }
@@ -283,11 +283,11 @@
                 localStorage.removeItem('admin_session');
                 
                 // Redirect to login
-                window.location.href = '/admin-login.html';
+                window.location.href = '/admin-login';
             } catch (error) {
                 console.error('Logout failed:', error);
                 // Force redirect anyway
-                window.location.href = '/admin-login.html';
+                window.location.href = '/admin-login';
             }
         }
 
@@ -310,7 +310,7 @@
             
             // Check if session expired
             if (response.status === 401) {
-                window.location.href = '/admin-login.html';
+                window.location.href = '/admin-login';
                 throw new Error('Session expired');
             }
             
