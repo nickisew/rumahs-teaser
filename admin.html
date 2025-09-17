@@ -330,7 +330,7 @@
         // Load statistics
         async function loadStats() {
             try {
-                const response = await secureApiRequest('/api/waitlist/stats');
+                const response = await secureApiRequest('/api/stats');
                 const data = await response.json();
                 
                 if (data.success) {
@@ -344,15 +344,15 @@
 
         // Update statistics display
         function updateStats(statsData) {
-            if (statsData.length > 0) {
-                const latest = statsData[0];
-                document.getElementById('totalSignups').textContent = latest.total;
-                document.getElementById('uniqueIPs').textContent = latest.unique_ips;
-                
-                // Calculate today's signups
-                const today = new Date().toISOString().split('T')[0];
-                const todayData = statsData.find(stat => stat.signup_date === today);
-                document.getElementById('todaySignups').textContent = todayData ? todayData.total : 0;
+            // Use the overall stats for total signups and unique visitors
+            if (statsData.overall) {
+                document.getElementById('totalSignups').textContent = statsData.overall.total_signups || 0;
+                document.getElementById('uniqueIPs').textContent = statsData.overall.unique_visitors || 0;
+            }
+            
+            // Use today's stats for today's signups
+            if (statsData.today) {
+                document.getElementById('todaySignups').textContent = statsData.today.today_signups || 0;
             }
         }
 
