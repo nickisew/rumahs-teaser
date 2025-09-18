@@ -29,7 +29,13 @@ async function sendWelcomeEmail(userEmail, userName = '') {
     const mailOptions = {
         from: `"${fromName}" <${fromAddress}>`,
         to: userEmail,
-        subject: 'Welcome to the Rumahs Waitlist!',
+        subject: 'Welcome to Rumahs - Waitlist Confirmation',
+        replyTo: fromAddress,
+        headers: {
+            'X-Mailer': 'Rumahs Waitlist System',
+            'X-Priority': '3',
+            'List-Unsubscribe': `<mailto:${fromAddress}?subject=Unsubscribe>`,
+        },
         html: `
         <!DOCTYPE html>
         <html>
