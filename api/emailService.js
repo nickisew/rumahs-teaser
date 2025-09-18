@@ -121,9 +121,16 @@ The Rumahs Team
         };
     } catch (error) {
         console.error('Error sending welcome email:', error);
+        console.error('Email config being used:', {
+            host: process.env.EMAIL_HOST,
+            port: process.env.EMAIL_PORT,
+            user: process.env.EMAIL_USER,
+            hasPassword: !!process.env.EMAIL_PASS
+        });
         return { 
             success: false, 
             error: error.message,
+            code: error.code,
             message: 'Failed to send welcome email'
         };
     }
