@@ -302,6 +302,18 @@ app.get('/api/waitlist/export', async (req, res) => {
     }
 });
 
+// DEBUG - Check email environment variables (REMOVE IN PRODUCTION)
+app.get('/api/debug/email-config', (req, res) => {
+    res.json({
+        EMAIL_HOST: process.env.EMAIL_HOST || 'NOT SET',
+        EMAIL_PORT: process.env.EMAIL_PORT || 'NOT SET',
+        EMAIL_USER: process.env.EMAIL_USER || 'NOT SET',
+        EMAIL_PASS: process.env.EMAIL_PASS ? 'SET' : 'NOT SET',
+        EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME || 'NOT SET',
+        EMAIL_FROM_ADDRESS: process.env.EMAIL_FROM_ADDRESS || 'NOT SET'
+    });
+});
+
 // ADMIN ONLY - Clear test entries with safety checks
 app.delete('/api/waitlist/clear-test', async (req, res) => {
     const { confirmationCode, pattern } = req.body;
