@@ -128,22 +128,23 @@ app.post('/api/waitlist', limiter, async (req, res) => {
         
         const result = await pool.query(insertSql, [email, normalizedFacebook, willingToPay || false, status, ipAddress, userAgent]);
         
-        // Send welcome email (don't fail the signup if email fails)
-        let emailStatus = null;
-        try {
-            emailStatus = await sendWelcomeEmail(email);
-            console.log('Welcome email sent to:', email, 'Status:', emailStatus.success);
-        } catch (emailError) {
-            console.error('Failed to send welcome email to:', email, emailError.message);
-            emailStatus = { success: false, message: 'Failed to send welcome email' };
-        }
-        
+        // Send response immediately, then send email in background
         res.json({ 
             success: true, 
             message: status === 'complete' ? 'Successfully joined the waitlist!' : 'Entry recorded, but Facebook profile needed for full access',
             id: result.rows[0].id,
             status: status,
-            emailSent: emailStatus ? emailStatus.success : false
+            emailSent: 'sending' // Indicate email is being sent
+        });
+        
+        // Send welcome email in background (don't block the response)
+        setImmediate(async () => {
+            try {
+                const emailStatus = await sendWelcomeEmail(email);
+                console.log('Welcome email sent to:', email, 'Status:', emailStatus.success);
+            } catch (emailError) {
+                console.error('Failed to send welcome email to:', email, emailError.message);
+            }
         });
         
     } catch (err) {
@@ -167,23 +168,28 @@ app.post('/api/waitlist', limiter, async (req, res) => {
                             normalizedFacebook, willingToPay || false, status, ipAddress, userAgent, email
                         ]);
                         
-                        // Send welcome email for completed profile (don't fail the signup if email fails)
-                        let emailStatus = null;
-                        try {
-                            emailStatus = await sendWelcomeEmail(email);
-                            console.log('Welcome email sent to updated profile:', email, 'Status:', emailStatus.success);
-                        } catch (emailError) {
-                            console.error('Failed to send welcome email to updated profile:', email, emailError.message);
-                            emailStatus = { success: false, message: 'Failed to send welcome email' };
-                        }
-                        
-                        return res.json({
+                        // Send response immediately, then send email in background
+                        const response = {
                             success: true,
                             message: 'Successfully updated your profile and joined the waitlist!',
                             id: updateResult.rows[0].id,
                             status: status,
-                            emailSent: emailStatus ? emailStatus.success : false
+                            emailSent: 'sending'
+                        };
+                        
+                        res.json(response);
+                        
+                        // Send welcome email in background (don't block the response)
+                        setImmediate(async () => {
+                            try {
+                                const emailStatus = await sendWelcomeEmail(email);
+                                console.log('Welcome email sent to updated profile:', email, 'Status:', emailStatus.success);
+                            } catch (emailError) {
+                                console.error('Failed to send welcome email to updated profile:', email, emailError.message);
+                            }
                         });
+                        
+                        return;
                     } else {
                         // Entry already exists and is complete, or no Facebook provided for incomplete entry
                         return res.status(409).json({ 
