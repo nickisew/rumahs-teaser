@@ -7,6 +7,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const { sendWelcomeEmail } = require('./api/emailService');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -127,11 +128,22 @@ app.post('/api/waitlist', limiter, async (req, res) => {
         
         const result = await pool.query(insertSql, [email, normalizedFacebook, willingToPay || false, status, ipAddress, userAgent]);
         
+        // Send welcome email (don't fail the signup if email fails)
+        let emailStatus = null;
+        try {
+            emailStatus = await sendWelcomeEmail(email);
+            console.log('Welcome email sent to:', email, 'Status:', emailStatus.success);
+        } catch (emailError) {
+            console.error('Failed to send welcome email to:', email, emailError.message);
+            emailStatus = { success: false, message: 'Failed to send welcome email' };
+        }
+        
         res.json({ 
             success: true, 
             message: status === 'complete' ? 'Successfully joined the waitlist!' : 'Entry recorded, but Facebook profile needed for full access',
             id: result.rows[0].id,
-            status: status
+            status: status,
+            emailSent: emailStatus ? emailStatus.success : false
         });
         
     } catch (err) {
@@ -155,11 +167,22 @@ app.post('/api/waitlist', limiter, async (req, res) => {
                             normalizedFacebook, willingToPay || false, status, ipAddress, userAgent, email
                         ]);
                         
+                        // Send welcome email for completed profile (don't fail the signup if email fails)
+                        let emailStatus = null;
+                        try {
+                            emailStatus = await sendWelcomeEmail(email);
+                            console.log('Welcome email sent to updated profile:', email, 'Status:', emailStatus.success);
+                        } catch (emailError) {
+                            console.error('Failed to send welcome email to updated profile:', email, emailError.message);
+                            emailStatus = { success: false, message: 'Failed to send welcome email' };
+                        }
+                        
                         return res.json({
                             success: true,
                             message: 'Successfully updated your profile and joined the waitlist!',
                             id: updateResult.rows[0].id,
-                            status: status
+                            status: status,
+                            emailSent: emailStatus ? emailStatus.success : false
                         });
                     } else {
                         // Entry already exists and is complete, or no Facebook provided for incomplete entry
@@ -270,6 +293,71 @@ app.get('/api/waitlist/export', async (req, res) => {
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', 'attachment; filename="waitlist-export.csv"');
         res.send(csv);
+    } catch (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Server error' 
+        });
+    }
+});
+
+// ADMIN ONLY - Clear test entries with safety checks
+app.delete('/api/waitlist/clear-test', async (req, res) => {
+    const { confirmationCode, pattern } = req.body;
+    
+    // Safety check - require confirmation code
+    if (confirmationCode !== 'CLEAR_TEST_ENTRIES_2025') {
+        return res.status(403).json({
+            success: false,
+            message: 'Invalid confirmation code. This endpoint requires proper authorization.'
+        });
+    }
+    
+    try {
+        let sql, params;
+        
+        if (pattern === 'test_emails') {
+            // Delete obvious test emails
+            sql = `DELETE FROM waitlist 
+                   WHERE email ILIKE ANY(ARRAY['%nicolesewell@outlook.com%', '%test@%', '%@test%', '%example@%'])
+                   RETURNING email, timestamp`;
+            params = [];
+        } else if (pattern === 'today_only') {
+            // Delete only today's entries
+            sql = `DELETE FROM waitlist 
+                   WHERE DATE(timestamp) = CURRENT_DATE
+                   RETURNING email, timestamp`;
+            params = [];
+        } else if (pattern === 'all_entries') {
+            // Nuclear option - delete everything (very dangerous)
+            const entryCount = await pool.query('SELECT COUNT(*) as count FROM waitlist');
+            if (entryCount.rows[0].count > 20) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Too many entries to delete all at once. Use more specific patterns.'
+                });
+            }
+            sql = `DELETE FROM waitlist RETURNING email, timestamp`;
+            params = [];
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid pattern. Use: test_emails, today_only, or all_entries'
+            });
+        }
+        
+        const result = await pool.query(sql, params);
+        
+        res.json({
+            success: true,
+            message: `Deleted ${result.rowCount} entries`,
+            deletedEntries: result.rows,
+            count: result.rowCount
+        });
+        
+        console.log(`🗑️  Admin deleted ${result.rowCount} waitlist entries (pattern: ${pattern})`);
+        
     } catch (err) {
         console.error('Database error:', err);
         return res.status(500).json({ 
