@@ -51,7 +51,7 @@ async function sendWelcomeEmail(userEmail, userName = '') {
             </div>
             
             <div style="padding: 30px 0;">
-                <h2 style="color: #1e40af; font-size: 1.3rem; margin-bottom: 20px;">Hey ${displayName}!</h2>
+                <h2 style="color: #1e40af; font-size: 1.3rem; margin-bottom: 20px;">Welcome to Rumahs!</h2>
                 
                 <p style="font-size: 1.1rem; margin-bottom: 20px;">
                     Thanks for joining our waitlist! We're excited that you're interested in what we're building.
@@ -89,7 +89,7 @@ async function sendWelcomeEmail(userEmail, userName = '') {
         </html>
         `,
         text: `
-Hey ${displayName}!
+Welcome to Rumahs!
 
 Thanks for joining our waitlist! We're excited that you're interested in what we're building.
 
