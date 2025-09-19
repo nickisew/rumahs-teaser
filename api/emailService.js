@@ -83,6 +83,10 @@ async function sendWelcomeEmail(userEmail, userName = '') {
                         Talk soon,<br>
                         <strong style="color: #1e40af;">The Rumahs Team</strong>
                     </p>
+                    <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 15px;">
+                        You're receiving this because you signed up for the Rumahs waitlist.<br>
+                        To unsubscribe, reply with "unsubscribe" or email info@rumahs.com
+                    </p>
                 </div>
             </div>
         </body>
@@ -108,6 +112,10 @@ Hope to see you sharing villas and making new friends from all over the world so
 
 Talk soon,
 The Rumahs Team
+
+---
+You're receiving this because you signed up for the Rumahs waitlist.
+To unsubscribe, reply with "unsubscribe" or email info@rumahs.com
         `
     };
 
