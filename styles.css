@@ -355,6 +355,11 @@ body {
     margin-bottom: 15px;
 }
 
+/* Footer paragraphs */
+.footer-nav p {
+    text-align: center;
+}
+
 /* About Page Styles */
 .back-button-container {
     position: absolute;
@@ -408,6 +413,7 @@ body {
     color: #4a5568;
     margin-bottom: 25px;
     letter-spacing: 0.02em;
+    text-align: center;
 }
 
 .about-section ul {

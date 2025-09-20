@@ -75,7 +75,7 @@ async function sendWelcomeEmail(userEmail, userName = '') {
                 </p>
                 
                 <p style="font-size: 1.1rem; margin-bottom: 20px;">
-                    Hope to see you sharing villas and making new friends from all over the world soon :)
+                    Hope to see you sharing villas and making new friends from all over the world soon!
                 </p>
                 
                 <div style="border-top: 1px solid #e2e8f0; margin-top: 30px; padding-top: 20px;">
