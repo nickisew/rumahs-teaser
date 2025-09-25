@@ -43,27 +43,40 @@ body {
     letter-spacing: 0.03em;
 }
 
-/* Hero Section */
+/* Hero Section - Slideshow */
 .hero {
     padding: 30px 0 80px;
     text-align: center;
 }
 
-.hero-image {
+.slideshow-container {
     position: relative;
     width: 100%;
     max-width: 1000px;
     height: 625px;
     margin: 0 auto;
-    border-radius: 0;
     overflow: hidden;
+    border-radius: 0;
+}
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: none;
 }
 
-.hero-photo {
+.slide.active {
+    opacity: 1;
+}
+
+.slide-image {
     position: absolute;
     top: 0;
     left: 0;
@@ -73,12 +86,12 @@ body {
     z-index: 1;
 }
 
-.text-overlay {
+.slide-overlay {
     position: relative;
     z-index: 2;
     background: rgba(71, 85, 105, 0.75);
     color: #f0f9ff;
-    padding: 62px 50px;
+    padding: 40px 50px;
     border-radius: 0;
     max-width: 625px;
     margin: 0 25px;
@@ -87,13 +100,89 @@ body {
     font-weight: 300;
 }
 
-.text-overlay p {
+.slide-overlay p {
     font-family: 'Outfit', sans-serif;
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     line-height: 1.8;
-    margin-bottom: 44px;
+    margin: 0;
     font-weight: 300;
     letter-spacing: 0.02em;
+}
+
+/* Slideshow Navigation */
+.slideshow-nav {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    display: flex;
+    gap: 12px;
+}
+
+.nav-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(240, 249, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(240, 249, 255, 0.8);
+}
+
+.nav-dot:hover,
+.nav-dot.active {
+    background: #f0f9ff;
+    border-color: #f0f9ff;
+    transform: scale(1.2);
+}
+
+/* Slide Arrows */
+.slide-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(71, 85, 105, 0.7);
+    color: #f0f9ff;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.slide-arrow:hover {
+    background: rgba(71, 85, 105, 0.9);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.slide-arrow-left {
+    left: 20px;
+}
+
+.slide-arrow-right {
+    right: 20px;
+}
+
+.slide-arrow span {
+    line-height: 1;
+    font-family: Arial, sans-serif;
+}
+
+/* CTA Container */
+.cta-container {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
 }
 
 .cta-button {
@@ -533,26 +622,39 @@ body {
         font-size: 2.2rem;
     }
     
-    .hero-image {
+    .slideshow-container {
         height: 500px;
         border-radius: 0;
     }
     
-    .text-overlay {
-        padding: 50px 30px;
+    .slide-overlay {
+        padding: 40px 30px;
         margin: 0 20px;
         border-radius: 0;
         max-width: 500px;
     }
     
-    .text-overlay p {
+    .slide-overlay p {
         font-size: 1.2rem;
-        margin-bottom: 35px;
     }
     
     .cta-button {
         padding: 22px 44px;
         font-size: 1.1rem;
+    }
+    
+    .slide-arrow {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+    
+    .slide-arrow-left {
+        left: 15px;
+    }
+    
+    .slide-arrow-right {
+        right: 15px;
     }
     
     .footer-nav {
@@ -591,13 +693,13 @@ body {
 }
 
 @media (max-width: 480px) {
-    .hero-image {
+    .slideshow-container {
         height: 438px;
         border-radius: 0;
     }
     
-    .text-overlay {
-        padding: 40px 25px;
+    .slide-overlay {
+        padding: 35px 25px;
         border-radius: 0;
         max-width: 438px;
     }
@@ -605,6 +707,20 @@ body {
     .cta-button {
         padding: 20px 40px;
         font-size: 1rem;
+    }
+    
+    .slide-arrow {
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
+    }
+    
+    .slide-arrow-left {
+        left: 10px;
+    }
+    
+    .slide-arrow-right {
+        right: 10px;
     }
     
     .form-container {

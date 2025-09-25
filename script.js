@@ -220,3 +220,73 @@ function clearValidationMessage() {
 document.getElementById('facebook').addEventListener('input', function() {
     clearValidationMessage();
 });
+
+// Slideshow functionality
+let currentSlideIndex = 0;
+let slideInterval;
+
+function showSlide(n) {
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.nav-dot');
+    
+    if (n >= slides.length) {
+        currentSlideIndex = 0;
+    }
+    if (n < 0) {
+        currentSlideIndex = slides.length - 1;
+    }
+    
+    // Hide all slides
+    slides.forEach(slide => slide.classList.remove('active'));
+    dots.forEach(dot => dot.classList.remove('active'));
+    
+    // Show current slide
+    slides[currentSlideIndex].classList.add('active');
+    dots[currentSlideIndex].classList.add('active');
+}
+
+function currentSlide(n) {
+    currentSlideIndex = n - 1;
+    showSlide(currentSlideIndex);
+    resetSlideInterval();
+}
+
+function nextSlide() {
+    currentSlideIndex++;
+    showSlide(currentSlideIndex);
+}
+
+function nextSlideManual() {
+    currentSlideIndex++;
+    showSlide(currentSlideIndex);
+    resetSlideInterval();
+}
+
+function previousSlide() {
+    currentSlideIndex--;
+    showSlide(currentSlideIndex);
+    resetSlideInterval();
+}
+
+function resetSlideInterval() {
+    clearInterval(slideInterval);
+    slideInterval = setInterval(nextSlide, 4000); // Change slide every 4 seconds
+}
+
+// Initialize slideshow when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Start the slideshow
+    resetSlideInterval();
+    
+    // Pause slideshow on hover
+    const slideshowContainer = document.querySelector('.slideshow-container');
+    if (slideshowContainer) {
+        slideshowContainer.addEventListener('mouseenter', () => {
+            clearInterval(slideInterval);
+        });
+        
+        slideshowContainer.addEventListener('mouseleave', () => {
+            resetSlideInterval();
+        });
+    }
+});

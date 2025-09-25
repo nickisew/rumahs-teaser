@@ -34,10 +34,43 @@
 
         <!-- Hero Section -->
         <main class="hero">
-            <div class="hero-image">
-                <img src="GrupoTeaser_1.jpg" alt="Four people watching sunset on beach driftwood" class="hero-photo">
-                <div class="text-overlay">
-                    <p>Connect with like-minded travelers,<br>book incredible places together,<br>and share the cost securely through the Rumahs app.</p>
+            <div class="slideshow-container">
+                <div class="slide active">
+                    <img src="GrupoTeaser_1.jpg" alt="Connect with like-minded travelers" class="slide-image">
+                    <div class="slide-overlay">
+                        <p>Connect with like-minded travelers</p>
+                    </div>
+                </div>
+                <div class="slide">
+                    <img src="big_house_with_pool.jpg" alt="Book incredible places together" class="slide-image">
+                    <div class="slide-overlay">
+                        <p>Book incredible places together</p>
+                    </div>
+                </div>
+                <div class="slide">
+                    <img src="GrupoTeaser_2.jpg" alt="Share the cost securely through the Rumahs app" class="slide-image">
+                    <div class="slide-overlay">
+                        <p>And share the cost securely through the Rumahs app</p>
+                    </div>
+                </div>
+                
+                <!-- Arrow Navigation -->
+                <button class="slide-arrow slide-arrow-left" onclick="previousSlide()">
+                    <span>&#8249;</span>
+                </button>
+                <button class="slide-arrow slide-arrow-right" onclick="nextSlideManual()">
+                    <span>&#8250;</span>
+                </button>
+                
+                <!-- Navigation dots -->
+                <div class="slideshow-nav">
+                    <span class="nav-dot active" onclick="currentSlide(1)"></span>
+                    <span class="nav-dot" onclick="currentSlide(2)"></span>
+                    <span class="nav-dot" onclick="currentSlide(3)"></span>
+                </div>
+                
+                <!-- CTA Button -->
+                <div class="cta-container">
                     <button class="cta-button" onclick="showForm()">join our waitlist</button>
                 </div>
             </div>
@@ -49,7 +82,7 @@
             <div class="steps">
                 <div class="step">
                     <span class="step-number">1</span>
-                    <p>Start a trip to your destination or join an existing group</p>
+                    <p>Start a trip to your destination as a group leader or join an existing group</p>
                 </div>
                 <div class="step">
                     <span class="step-number">2</span>
@@ -61,7 +94,7 @@
                 </div>
                 <div class="step">
                     <span class="step-number">4</span>
-                    <p>Lock in your choice and pool funds securely within the time limit</p>
+                    <p>Lock in your choice together and pool funds securely to book the rental home</p>
                 </div>
                 <div class="step">
                     <span class="step-number">5</span>
