@@ -627,15 +627,26 @@ body {
         border-radius: 0;
     }
     
+    .slide {
+        height: 500px;
+    }
+    
+    .slide-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
     .slide-overlay {
-        padding: 40px 30px;
-        margin: 0 20px;
+        padding: 35px 25px;
+        margin: 0 15px;
         border-radius: 0;
-        max-width: 500px;
+        max-width: 450px;
     }
     
     .slide-overlay p {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
+        line-height: 1.6;
     }
     
     .cta-button {
@@ -655,6 +666,14 @@ body {
     
     .slide-arrow-right {
         right: 15px;
+    }
+    
+    .cta-container {
+        bottom: 60px;
+    }
+    
+    .slideshow-nav {
+        bottom: 15px;
     }
     
     .footer-nav {
@@ -694,14 +713,30 @@ body {
 
 @media (max-width: 480px) {
     .slideshow-container {
-        height: 438px;
+        height: 400px;
         border-radius: 0;
     }
     
+    .slide {
+        height: 400px;
+    }
+    
+    .slide-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
     .slide-overlay {
-        padding: 35px 25px;
+        padding: 30px 20px;
         border-radius: 0;
-        max-width: 438px;
+        max-width: 350px;
+        margin: 0 10px;
+    }
+    
+    .slide-overlay p {
+        font-size: 1rem;
+        line-height: 1.5;
     }
     
     .cta-button {
@@ -721,6 +756,14 @@ body {
     
     .slide-arrow-right {
         right: 10px;
+    }
+    
+    .cta-container {
+        bottom: 50px;
+    }
+    
+    .slideshow-nav {
+        bottom: 10px;
     }
     
     .form-container {
