@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Get form data
         const email = document.getElementById('email').value;
         const facebook = document.getElementById('facebook').value;
-        const willingToPay = document.getElementById('willingToPay').checked;
         
         // Clear any existing validation messages
         clearValidationMessage();
@@ -41,8 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({
                     email: email,
-                    facebook: normalizedFacebook,
-                    willingToPay: willingToPay
+                    facebook: normalizedFacebook
                 })
             });
             
