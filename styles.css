@@ -179,7 +179,7 @@ body {
 /* CTA Container */
 .cta-container {
     position: absolute;
-    bottom: 80px;
+    bottom: 40px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 3;
@@ -189,9 +189,9 @@ body {
     background: #f0f9ff;
     color: #1e40af;
     border: none;
-    padding: 25px 50px;
+    padding: 18px 35px;
     border-radius: 0;
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 400;
     cursor: pointer;
     transition: all 0.4s ease;
@@ -539,9 +539,9 @@ body {
     background: transparent;
     color: #1e40af;
     border: 2px solid #1e40af;
-    padding: 12px 20px;
+    padding: 8px 16px;
     border-radius: 0;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.3s ease;
     font-family: 'Space Grotesk', sans-serif;
@@ -692,11 +692,16 @@ body {
     }
     
     .cta-container {
-        bottom: 60px;
+        bottom: 30px;
+    }
+    
+    .cta-button {
+        padding: 16px 30px;
+        font-size: 0.95rem;
     }
     
     .slideshow-nav {
-        bottom: 15px;
+        bottom: 10px;
     }
     
     .footer-nav {
@@ -809,11 +814,16 @@ body {
     }
     
     .cta-container {
-        bottom: 50px;
+        bottom: 25px;
+    }
+    
+    .cta-button {
+        padding: 14px 28px;
+        font-size: 0.9rem;
     }
     
     .slideshow-nav {
-        bottom: 10px;
+        bottom: 8px;
     }
     
     .form-container {
@@ -830,8 +840,8 @@ body {
     }
     
     .back-button {
-        padding: 10px 16px;
-        font-size: 0.85rem;
+        padding: 7px 14px;
+        font-size: 0.75rem;
     }
     
     .about-content {
