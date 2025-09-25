@@ -22,7 +22,7 @@ body {
 /* Header */
 .header {
     text-align: center;
-    padding: 50px 0 30px;
+    padding: 30px 0 20px;
 }
 
 .title {
@@ -45,7 +45,7 @@ body {
 
 /* Hero Section - Slideshow */
 .hero {
-    padding: 30px 0 80px;
+    padding: 20px 0 40px;
     text-align: center;
 }
 
@@ -618,17 +618,26 @@ body {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .header {
+        padding: 20px 0 15px;
+    }
+    
     .title {
-        font-size: 2.2rem;
+        font-size: 2rem;
+        margin-bottom: 8px;
+    }
+    
+    .hero {
+        padding: 15px 0 30px;
     }
     
     .slideshow-container {
-        height: 500px;
+        height: 350px;
         border-radius: 0;
     }
     
     .slide {
-        height: 500px;
+        height: 350px;
     }
     
     .slide-image {
@@ -712,13 +721,26 @@ body {
 }
 
 @media (max-width: 480px) {
+    .header {
+        padding: 15px 0 10px;
+    }
+    
+    .title {
+        font-size: 1.8rem;
+        margin-bottom: 6px;
+    }
+    
+    .hero {
+        padding: 10px 0 20px;
+    }
+    
     .slideshow-container {
-        height: 400px;
+        height: 280px;
         border-radius: 0;
     }
     
     .slide {
-        height: 400px;
+        height: 280px;
     }
     
     .slide-image {
