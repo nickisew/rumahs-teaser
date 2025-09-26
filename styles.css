@@ -189,9 +189,9 @@ body {
     background: #f0f9ff;
     color: #1e40af;
     border: none;
-    padding: 18px 35px;
+    padding: 22px 45px;
     border-radius: 0;
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 400;
     cursor: pointer;
     transition: all 0.4s ease;
@@ -656,8 +656,8 @@ body {
     .slide:nth-child(1) .slide-overlay,
     .slide:nth-child(2) .slide-overlay,
     .slide:nth-child(3) .slide-overlay {
-        align-self: flex-start;
-        margin-top: 40px;
+        align-self: center;
+        margin-top: 0;
     }
     
     .slide-overlay p {
@@ -771,8 +771,8 @@ body {
     .slide:nth-child(1) .slide-overlay,
     .slide:nth-child(2) .slide-overlay,
     .slide:nth-child(3) .slide-overlay {
-        align-self: flex-start;
-        margin-top: 30px;
+        align-self: center;
+        margin-top: 0;
     }
     
     .slide-overlay p {
